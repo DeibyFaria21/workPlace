@@ -23,7 +23,7 @@ module.exports = router
 
 const { Router } = require('express')
 const fs = require ('fs')
-const ProductManager = require('../ProductManager')
+const ProductManager = require(/* '../ProductManager' */)
 const productsRouter = Router()
 const manager = new ProductManager('./src/products.json')
 //Probando Middleware

@@ -24,7 +24,6 @@ addProduct(title, description, price, thumbnail, code, stock) {
 
     const product = {
       id: this.productIdCounter,
-	@@ -33,62 +32,48 @@ class ProductManager {
       price: price,
       thumbnail: thumbnail,
       code: code,
