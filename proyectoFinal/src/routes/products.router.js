@@ -1,3 +1,4 @@
+/* //Importaciones
 const express = require("express")
 const router = express.Router()
 
@@ -13,29 +14,39 @@ router.post("/products", (req, res)=>{
     res.json({message: "Producto agregado"})
 })
 
-module.exports = router
+module.exports = router */
+///////////////////////////////////////ACA
 
 
 
-
-///////////////////////////////////////HOLA
-
-
-const { Router } = require('express')
-const fs = require ('fs')
-const ProductManager = require(/* '../ProductManager' */)
+//Importaciones
+import { Router } from 'express'
 const productsRouter = Router()
-const manager = new ProductManager('./src/products.json')
+import ProductManager from '../productManager.js'
+/////////////////////////////////////////////////////////////////
+/* const { Router } = require('express')
+const productsRouter = Router()
+const ProductManager = require('../productManager') */
+/////////////////////////////////////////////////////////////////
+/* const fs = require ('fs') */
+
+
+//Instanciando clase ProductManager
+const managerProduct = new ProductManager()
+
+
 //Probando Middleware
-productsRouter.use((req,res,next) =>{
+/* productsRouter.use((req,res,next) =>{
   console.log('Middleware en productsRouter')
   return next()
-})
-//Metodo GET
+}) */
+
+
+//Ruta de endpoint para obtener el listado de productos con o sin límite
 productsRouter.get('/', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit)
-    const products = await manager.getProducts()
+    const products = await managerProduct.getProducts()
     if (!isNaN(limit) && limit > 0) {
       const limitedProducts = products.slice(0, parseInt(limit))
       console.log(limitedProducts)
@@ -47,46 +58,61 @@ productsRouter.get('/', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los productos' })
   }
 })
-//Metodo GET/:pid
+
+
+//Ruta de endpoint para obtener un producto especificado por ID del listado de productos
 productsRouter.get('/:pid', async (req, res) => {
   try {
     const productId = parseInt(req.params.pid)
-    const product = await manager.getProductsById(productId)
+    const product = await managerProduct.getProductById(productId)
     if (!product.pid) {
-      return res.status(404).json({ error: 'Producto no encontrado' })
+      return res.json(product)
+      /* res.status(404).json({ error: 'Producto no encontrado' }) */
     }
-    res.status(200).json(product)
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Error al obtener el producto' })
   }
 })
-//Metodo POST
+
+
+//Ruta de endpoint para agregar un producto al listado de productos
 productsRouter.post('/', async (req, res) => {
-  const product = req.body
-  if(!product || Object.values(product).some(value => !value)){
-    return res.status(400).json({status: "error", error: "Incomplete values"})
+  const product = req.body;
+  if (!product || Object.values(product).some(value => !value)) {
+    return res.status(400).json({ status: "error", error: 'Valores incompletos' });
   }
 
   try {
-    manager.addProduct(product.title, product.description, product.code, product.price, product.status, product.stock, product.thumbnail)
+    const result = await managerProduct.addProduct(product.title, product.description, product.code, product.price, product.status, product.stock, product.category, product.thumbnail);
     if (typeof result === "string") {
       return res.status(400).json({ status: "error", error: result });
     }
-    return res.status(201).json({ status: "success", message: "Product created" }) 
+    return res.status(201).json({ status: "success", message: 'Producto creado'/* , product: result */});
   } catch (error) {
-    return res.status(500).json({ status: "error", error: "Failed to create product" })
+    return res.status(500).json({ status: "error", error: 'Error al crear el producto' });
   }
-})
-//Metodo PUT
+});
+
+/* productsRouter.post('/', async (req, res) => {
+  const { title, description, code, price, status, stock, category, thumbnail } = req.body;
+  if (!title || !description || !code || !price || !status || !stock || !category || !thumbnail) {
+      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+  }
+  managerProduct.addProduct(title, description, code, price, status, stock, category, thumbnail);
+  res.status(200).json({ message: 'Producto agregado exitosamente' });
+}); */
+
+
+//Ruta de endpoint para actualizar un producto especificado del listado de productos
 productsRouter.put('/:pid', async (req, res) => {
   const data = req.body
   const productId = parseInt(req.params.pid)
-  const products = await manager.getProducts()
+  const products = await managerProduct.getProducts()
   const product = products.find(product => product.id === productId)
   if (!product) {
     return res.status(404).json({
-      error: 'Product not found'
+      error: 'Producto para actualización no encontrado'
     })
   }
   product.id = product.id
@@ -96,16 +122,21 @@ productsRouter.put('/:pid', async (req, res) => {
   product.price = data.price || product.price
   product.status = data.status || product.status
   product.stock = data.stock || product.stock
+  product.category = data.category || product.category
   product.thumbnail = data.thumbnail || product.thumbnail
-  manager.updateProduct(product.id, data)
+  managerProduct.updateProduct(product.id, data)
   // manager.saveProducts(products)
   return res.json(product)
 })
-//Metodo DELETE
+
+
+//Ruta de endpoint para eliminar un producto especificado del listado de productos
 productsRouter.delete('/:pid', async (req, res) => {
   const productId = parseInt(req.params.pid)
-  manager.deleteProduct(productId)
+  managerProduct.deleteProduct(productId)
   return res.status(204).json({})
 })
-//ejecutar con nodemon --ignore cart.json, products.json app.js
-module.exports = productsRouter
+
+
+/* module.exports = productsRouter */
+export default productsRouter;

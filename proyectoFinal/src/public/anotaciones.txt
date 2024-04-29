@@ -1,0 +1,1 @@
+el index.js anteriormente era el index.html de public general

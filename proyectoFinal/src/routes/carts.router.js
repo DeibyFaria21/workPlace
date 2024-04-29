@@ -1,4 +1,5 @@
-const express = require("express")
+/* //Importaciones
+/* const express = require("express")
 const router = express.Router()
 
 const carts = []
@@ -13,15 +14,25 @@ router.post("/carts", (req, res)=>{
     res.json({message: "Carrito agregado"})
 })
 
-module.exports = router
-
+module.exports = router */
 //////////////////////////////////////////////HOla
 
-const { Router } = require('express')
-const fs = require('fs')
+
+
+//Importaciones
+import { Router } from 'express'
 const cartsRouter = Router()
-const CartManager = require('../cartManager')
-const manager = new CartManager('./src/carts.json')
+import { promises } from 'fs'
+import CartManager from '../cartManager.js'
+//////////////////////////////////////////////////////////////////
+/* const { Router } = require('express')
+const cartsRouter = Router()
+const fs = require('fs')
+const CartManager = require('../cartManager') */
+
+
+//Instanciando clase CarttManager
+const managerCart = new CartManager()
 
 
 //Probando Middleware 
@@ -30,10 +41,11 @@ const manager = new CartManager('./src/carts.json')
   return next()
 }) */
 
+
 //Metodo POST
 cartsRouter.post('/', async (req, res) => {
   try {
-    const carts = await manager.createCart();
+    const carts = await managerCart.createCart();
     console.log('El carrito se ha guardado correctamente');
     res.status(201).json(carts);
   } catch (error) {
@@ -47,7 +59,7 @@ cartsRouter.post('/', async (req, res) => {
 cartsRouter.get('/:cid', async (req, res) => {
   try {
     const cartId = parseInt(req.params.cid)
-    const cart = await manager.getCartsById(cartId)
+    const cart = await managerCart.getCartsById(cartId)
 
     return res.status(200).json(cart)
   } catch (error) {
@@ -61,7 +73,7 @@ cartsRouter.get('/:cid', async (req, res) => {
 cartsRouter.post('/:cid/product/:pid', async (req, res) => {
   const cid = parseInt(req.params.cid)
   const pid = parseInt(req.params.pid)
-  const carts = await manager.getCarts()
+  const carts = await managerCart.getCarts()
   const cart = carts.find(cart => cart.cid === cid)
 
   if (!cart) {
@@ -75,14 +87,15 @@ cartsRouter.post('/:cid/product/:pid', async (req, res) => {
   }
 
   try {
-    fs.promises.writeFile('./src/carts.json', JSON.stringify(carts, null, 2))
+    await fs.promises.writeFile('./carts.json', JSON.stringify(carts, null, 2))
     console.log('Datos del carrito actualizados y guardados')
     return res.status(200).json(carts)
-  } catch (err) {
-    console.error('Error al escribir en el archivo:', err)
+  } catch (error) {
+    console.error('Error al escribir en el archivo:', error)
     return res.status(500).json({ error: 'Error al guardar los datos del carrito' })
   }
 })
 
 
-module.exports = cartsRouter
+/* module.exports = cartsRouter */
+export default cartsRouter;
