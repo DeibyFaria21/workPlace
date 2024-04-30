@@ -1,5 +1,5 @@
 //Importaciones
-import express, { urlencoded, json } from "express"
+import express from "express"
 import path from "path"
 import productsRouter from "./routes/products.router.js"
 import cartsRouter from "./routes/carts.router.js"
